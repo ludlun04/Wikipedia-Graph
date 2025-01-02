@@ -1,0 +1,12 @@
+services:
+  neo4j:
+    image: 'neo4j:latest'
+    environment:
+      - 'NEO4J_AUTH=neo4j/f9UPKfbus%Fjd&Tew&$6'
+    volumes:
+      - '/home/ludvik/Code/WikipediaGraphSearch/neo4jdata'
+    ports:
+      - '7474:7474'
+      - '7687:7687'
+    restart: 'always'
+
