@@ -47,17 +47,17 @@ def parse_xml(file_path):
                 links = clean_links(links)
                 link_count += len(links)
 
-                with open("links.txt", "a") as f:
+                with open("parsed/links.txt", "a") as f:
                     for link in links:
                         f.write(f"{title} -> {link}\n")
 
-            with open("articles.txt", "a") as f:
+            with open("parsed/articles.txt", "a") as f:
                 f.write(f"{title}\n")
 
             # Clear processed elements to avoid crashing computer when processing large files
             elem.clear()
 
-parse_xml("enwiki.xml")
+parse_xml("raw/enwiki.xml")
 print(f"Article count: {article_count}, Link count: {link_count}")
 #links = url_pattern.findall("'''Anarchism''' is a [[political philosophy]] and [[Political movement|movement]] that is against all forms of authority and seeks to abolish the institutions it claims maintain unnecessary coercion and [[Social hierarchy|hierarchy]], typically including the [[state (polity)|state]] and [[capitalism]]. Anarchism advocates for the replacement of the state with [[Stateless society|stateless societies]] and voluntary [[Free association (communism and anarchism)|free associations]]. A historically left-wing movement, anarchism is usually described as the [[libertarian]] wing of the [[socialist movement]] ([[libertarian socialism]]).")
 #print(links)

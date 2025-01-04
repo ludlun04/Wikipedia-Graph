@@ -52,9 +52,10 @@ def get_connections_from_file(path, from_line):
     with open(path, 'r') as file:
         for current_line_number, line in tqdm(enumerate(file, start=from_line)):
 
-            if current_line_number % interval == 0 and psutil.virtual_memory().available < 2000000000:  # less than 2000 MB
+            if current_line_number % interval == 0 and psutil.virtual_memory().available < 1024 * 1024 * 2000:  # less than 2000 MB
                 print(f"Not enough memory to parse entire file in one go. {len(file.readlines()) - current_line_number} lines left")
                 return connections, from_line
+
 
             articles = line.split("->")
 
