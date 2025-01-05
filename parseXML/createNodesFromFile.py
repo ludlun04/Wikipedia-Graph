@@ -28,22 +28,47 @@ def clear_database():
     with get_driver().session() as session:
         current_nodes = 1
         while current_nodes > 0:
-            session.run("MATCH (node) WITH node LIMIT 1500000 DETACH DELETE node;")
-
+            session.run("MATCH (node) WITH node LIMIT 150000 DETACH DELETE node;")
             result = session.run("MATCH (node) RETURN COUNT(node) AS C")
             current_nodes = result.single()["C"]
+        session.run("DROP INDEX title_index IF EXISTS")
         print("Database cleared.")
 
+def create_constraints():
+    print("Creating constraints...")
 
-def get_titles_from_file(path):
-    print("Getting lines from " + path + "...")
-    titles = []
+    with get_driver().session() as session:
+        session.run("CREATE INDEX title_index FOR (a:Article) ON a.title")
+
+    print("Constraints created.")
+
+def insert_articles_from_file(path):
+    print("Inserting articles from " + path + "...")
+
+    num_lines = 0
+
+    # calculate number of lines for progress bar
     with open(path, 'r') as file:
-        for line in tqdm(file):
-            line = line.replace("\n", "")  # avoid newline
-            titles.append(line)
-    print(f"Got {len(titles)} titles from file")
-    return titles
+        for _ in file:
+            num_lines += 1
+
+    with open(path, 'r') as file:
+        for line in tqdm(file, total=num_lines):
+            components = line.split("->")
+            title = components[0]
+            links = components[1].split("|||")
+
+            with get_driver().session() as session:
+                query = """
+                MERGE (article:Article {title: $title})
+                WITH article
+                UNWIND $links_titles AS link_title
+                MERGE (to_article:Article {title: link_title})
+                CREATE (article)-[:LINKS_TO]->(to_article)
+                """
+                session.run(query, title=title, links_titles=links)
+
+
 
 
 def get_connections_from_file(path, from_line):
@@ -126,6 +151,6 @@ def insert_connections_from_file():
 
 
 test_connectivity()
-#clear_database()
-#insert_nodes_from_file()
-insert_connections_from_file()
+clear_database()
+create_constraints()
+insert_articles_from_file(TITLES_PATH)
