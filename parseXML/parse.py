@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as ET
 import re
 
-url_pattern = re.compile(r"\[\[.*?\]\]")
+url_pattern = re.compile(r"\[\[.*?\]\]") # identify links
+link_to_file_pattern = re.compile(r"File.+\..+") # identify when a link is to a file, these should be ignored
 
 references_header = "==References=="
 
@@ -21,8 +22,8 @@ def clean_links(links):
         link = link[2:-2]  # Remove brackets
         if "|" in link:
             link = link.split("|")[0]  # Use article title instead of link text
+        if not link_to_file_pattern.match(link):
             cleaned.append(link)
-
     #print(f"Links: {cleaned}")
     cleaned = list(set(cleaned)) # Remove duplicates
     #print(f"Cleaned links: {cleaned}")
@@ -34,7 +35,7 @@ def parse_xml(file_path):
     for event, elem in ET.iterparse(file_path, events=("start", "end")):
         #print(event, elem.tag)
         if event == "end" and elem.tag == page_tag:
-            article_count += 1
+
             title = elem.find(title_tag).text
             revision = elem.find(revision_tag)
             text = revision.find(text_tag).text
@@ -43,16 +44,20 @@ def parse_xml(file_path):
                 text = text.split(references_header)[0] # Ignore references section and beyond
 
                 links = url_pattern.findall(text)
-                print(f"Title: {title}")
+                # print(f"Title: {title}")
                 links = clean_links(links)
-                link_count += len(links)
 
-                with open("parsed/links.txt", "a") as f:
-                    for link in links:
-                        f.write(f"{title} -> {link}\n")
+                # some links are just an alias for the actual page, like AccessibleComputing -> Computer accessibility
+                if len(links) != 1:
+                    article_count += 1
+                    link_count += len(links)
+                    with open("parsed/articles.txt", "a") as f:
+                        f.write(f"{title}\n[\n")
+                        for link in links:
+                            f.write(f"{link}\n")
+                        f.write(f"]\n")
 
-            with open("parsed/articles.txt", "a") as f:
-                f.write(f"{title}\n")
+
 
             # Clear processed elements to avoid crashing computer when processing large files
             elem.clear()
