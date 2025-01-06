@@ -1,8 +1,9 @@
 import xml.etree.ElementTree as ET
 import re
 
-url_pattern = re.compile(r"\[\[.*?\]\]") # identify links
+url_pattern = re.compile(r"\[\[.*?]]") # identify links
 link_to_file_pattern = re.compile(r"File.+\..+") # identify when a link is to a file, these should be ignored
+coordinate_pattern = re.compile(r"\[-?[0-9]+.[0-9]+,-?[0-9]+.[0-9]+]") # identify when a link is just a coordinate
 
 references_header = "==References=="
 
@@ -22,8 +23,13 @@ def clean_links(links):
         link = link[2:-2]  # Remove brackets
         if "|" in link:
             link = link.split("|")[0]  # Use article title instead of link text
-        if not link_to_file_pattern.match(link) and len(link) is not 0:
+        if (
+            not link_to_file_pattern.match(link)
+            and not coordinate_pattern.match(link)
+            and len(link) != 0
+        ):
             cleaned.append(link)
+
     #print(f"Links: {cleaned}")
     cleaned = list(set(cleaned)) # Remove duplicates
     #print(f"Cleaned links: {cleaned}")
@@ -54,6 +60,7 @@ def parse_xml(file_path):
                     with open("parsed/articles.txt", "a") as f:
                         f.write(f"{title}->")
                         for link in links:
+
                             f.write(f"|||{link}")
                         f.write("\n")
 
