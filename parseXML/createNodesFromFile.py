@@ -26,8 +26,16 @@ def test_connectivity():
 def clear_database():
     print("Clearing database...")
     with get_driver().session() as session:
+        current_relationships = 1
         current_nodes = 1
+
+        while current_relationships > 0:
+            session.run("MATCH (n1)-[r:LINKS_TO]->(n2) WITH r LIMIT 150000 DETACH DELETE r;")
+            result = session.run("MATCH (n1)-[r:LINKS_TO]->(n2) WITH r RETURN COUNT(r) AS C")
+            current_relationships = result.single()["C"]
+
         while current_nodes > 0:
+
             session.run("MATCH (node) WITH node LIMIT 150000 DETACH DELETE node;")
             result = session.run("MATCH (node) RETURN COUNT(node) AS C")
             current_nodes = result.single()["C"]
@@ -57,6 +65,9 @@ def insert_articles_from_file(path):
             components = line.split("->")
             title = components[0]
             links = components[1].split("|||")
+
+            print(title)
+            print(links)
 
             with get_driver().session() as session:
                 query = """

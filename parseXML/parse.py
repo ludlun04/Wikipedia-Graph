@@ -22,7 +22,7 @@ def clean_links(links):
         link = link[2:-2]  # Remove brackets
         if "|" in link:
             link = link.split("|")[0]  # Use article title instead of link text
-        if not link_to_file_pattern.match(link):
+        if not link_to_file_pattern.match(link) and len(link) is not 0:
             cleaned.append(link)
     #print(f"Links: {cleaned}")
     cleaned = list(set(cleaned)) # Remove duplicates
