@@ -1,3 +1,4 @@
+from itertools import filterfalse
 from time import sleep
 
 import neo4j.exceptions
@@ -63,6 +64,15 @@ def insert_articles_from_file(path: str):
             num_lines += 1
 
     with open(path, 'r') as file:
+
+        query = """
+                MERGE (article:Article {title: $title})
+                WITH article
+                UNWIND $links_titles AS link_title
+                MERGE (to_article:Article {title: link_title})
+                CREATE (article)-[:LINKS_TO]->(to_article)
+                """
+
         for line in tqdm(file, total=num_lines):
             components = line.split("->")
             title = components[0]
@@ -72,18 +82,20 @@ def insert_articles_from_file(path: str):
             # print(title)
             # print(links)
 
-            with get_driver().session() as session:
-                query = """
-                MERGE (article:Article {title: $title})
-                WITH article
-                UNWIND $links_titles AS link_title
-                MERGE (to_article:Article {title: link_title})
-                CREATE (article)-[:LINKS_TO]->(to_article)
-                """
-                try:
-                    session.run(query, title=title, links_titles=links)
-                except neo4j.exceptions.DatabaseError:
-                    print(f"Failed to add entirety of article {title} containing links {links}")
+            tries = 0
+            success = False
+            while tries < 2 and not success:
+                with get_driver().session() as session:
+                    try:
+                        session.run(query, title=title, links_titles=links)
+                        success = True
+                    except neo4j.exceptions.DatabaseError:
+                        print(f"Failed to add entirety of article {title} containing links {links}")
+                    except neo4j.exceptions.ServiceUnavailable:
+                        print(f"Database connection lost, attempting reconnect...")
+                        test_connectivity()
+                    finally:
+                        tries += 1
 
 
 test_connectivity()
