@@ -91,8 +91,9 @@ def insert_articles_from_file(path: str):
                         success = True
                     except neo4j.exceptions.DatabaseError:
                         print(f"Failed to add entirety of article {title} containing links {links}")
-                    except neo4j.exceptions.ServiceUnavailable:
+                    except (neo4j.exceptions.ServiceUnavailable, neo4j.exceptions.SessionExpired):
                         print(f"Database connection lost, attempting reconnect...")
+                        sleep(60)
                         test_connectivity()
                     finally:
                         tries += 1
