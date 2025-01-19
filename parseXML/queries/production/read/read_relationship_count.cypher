@@ -1,0 +1,3 @@
+MATCH (n1)-[r:LINKS_TO]->(n2)
+WITH r
+RETURN COUNT(r) AS C;

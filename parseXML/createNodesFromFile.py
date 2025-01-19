@@ -4,15 +4,12 @@ from time import sleep
 import neo4j.exceptions
 from tqdm import tqdm
 from neo4j import GraphDatabase
-import psutil
+
+from queries_from_file import * # needed queries read from file
 
 URI = "neo4j://localhost:7687"
 AUTH = ("neo4j", "f9UPKfbus%Fjd&Tew&$6")
-TITLES_PATH = 'parsed/articles.txt'
-CONNECTIONS_PATH = 'parsed/links.txt'
-
-query_group_size = 100
-
+ARTICLES_PATH = 'wikipedia_data/parsed/articles.txt'
 
 def get_driver():
     return GraphDatabase.driver(URI, auth=AUTH)
@@ -32,74 +29,76 @@ def clear_database():
         current_nodes = 1
 
         while current_relationships > 0:
-            session.run("MATCH (n1)-[r:LINKS_TO]->(n2) WITH r LIMIT 150000 DETACH DELETE r;")
-            result = session.run("MATCH (n1)-[r:LINKS_TO]->(n2) WITH r RETURN COUNT(r) AS C")
+            session.run(delete_relationships)
+            result = session.run(read_relationships_count)
             current_relationships = result.single()["C"]
 
         while current_nodes > 0:
-            session.run("MATCH (node) WITH node LIMIT 150000 DETACH DELETE node;")
-            result = session.run("MATCH (node) RETURN COUNT(node) AS C")
+            session.run(delete_nodes)
+            result = session.run(read_nodes_count)
             current_nodes = result.single()["C"]
-        session.run("DROP INDEX title_index IF EXISTS")
+
+        session.run(drop_index)
         print("Database cleared.")
 
 
-def create_constraints():
-    print("Creating constraints...")
+def create_new_index():
+    print("Creating index...")
 
     with get_driver().session() as session:
-        session.run("CREATE INDEX title_index FOR (a:Article) ON a.title")
+        session.run(create_index)
 
-    print("Constraints created.")
+    print("Index created.")
 
+
+def get_lines_in_file(path: str):
+    num_lines = 0
+    with open(path, 'r') as file:
+        for _ in file:
+            num_lines += 1
+    return num_lines
 
 def insert_articles_from_file(path: str):
     print("Inserting articles from " + path + "...")
 
-    num_lines = 0
-
     # calculate number of lines for progress bar
-    with open(path, 'r') as file:
-        for _ in file:
-            num_lines += 1
+    num_lines = get_lines_in_file(path)
 
     with open(path, 'r') as file:
-
-        query = """
-                MERGE (article:Article {title: $title})
-                WITH article
-                UNWIND $links_titles AS link_title
-                MERGE (to_article:Article {title: link_title})
-                CREATE (article)-[:LINKS_TO]->(to_article)
-                """
-
+        query = create_linked_articles
         for line in tqdm(file, total=num_lines):
-            components = line.split("->")
-            title = components[0]
-            links = components[1].split("|||")
-            links.pop(0)  # remove '' that is created by splitting
+            handle_line(line, query)
 
-            # print(title)
-            # print(links)
 
-            tries = 0
-            success = False
-            while tries < 2 and not success:
-                with get_driver().session() as session:
-                    try:
-                        session.run(query, title=title, links_titles=links)
-                        success = True
-                    except neo4j.exceptions.DatabaseError:
-                        print(f"Failed to add entirety of article {title} containing links {links}")
-                    except (neo4j.exceptions.ServiceUnavailable, neo4j.exceptions.SessionExpired):
-                        print(f"Database connection lost, attempting reconnect...")
-                        sleep(60)
-                        test_connectivity()
-                    finally:
-                        tries += 1
+def handle_line(line, query: Query):
+    components = line.split("->")
+    title = components[0]
+    links = components[1].split("|||")
+    links.pop(0)  # remove '' that is created by splitting
+
+    tries = 0
+    success = False
+    while tries < 2 and not success:
+        success, tries = handle_query(links, query, success, title, tries)
+
+
+def handle_query(links, query: Query, success, title, tries):
+    with get_driver().session() as session:
+        try:
+            session.run(query, title=title, links_titles=links)
+            success = True
+        except neo4j.exceptions.DatabaseError:
+            print(f"Failed to add entirety of article {title} containing links {links}")
+        except (neo4j.exceptions.ServiceUnavailable, neo4j.exceptions.SessionExpired):
+            print(f"Database connection lost, attempting reconnect...")
+            sleep(60)
+            test_connectivity()
+        finally:
+            tries += 1
+    return success, tries
 
 
 test_connectivity()
 clear_database()
-create_constraints()
-insert_articles_from_file(TITLES_PATH)
+create_new_index()
+insert_articles_from_file(ARTICLES_PATH)

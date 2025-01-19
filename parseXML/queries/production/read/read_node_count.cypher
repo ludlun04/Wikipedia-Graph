@@ -1,0 +1,1 @@
+MATCH (node) RETURN COUNT(node) AS C;

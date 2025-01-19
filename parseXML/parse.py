@@ -57,7 +57,7 @@ def parse_xml(file_path):
                 if len(links) != 1:
                     article_count += 1
                     link_count += len(links)
-                    with open("parsed/articles.txt", "a") as f:
+                    with open("wikipedia_data/parsed/articles.txt", "a") as f:
                         f.write(f"{title}->")
                         for link in links:
 
@@ -69,6 +69,6 @@ def parse_xml(file_path):
             # Clear processed elements to avoid crashing computer when processing large files
             elem.clear()
 
-parse_xml("raw/enwiki.xml")
+parse_xml("wikipedia_data/raw/enwiki.xml")
 print(f"Article count: {article_count}, Link count: {link_count}")
 

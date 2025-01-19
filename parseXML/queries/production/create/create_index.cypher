@@ -1,0 +1,1 @@
+CREATE INDEX title_index FOR (a:Article) ON a.title;
