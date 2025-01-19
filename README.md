@@ -4,7 +4,7 @@ This enables us to quickly find the optimal path to navigate between given artic
 I got this idea from a youtube-video where people competed against each other,
 seeing who could navigate between two unrelated topics on Wikipedia the fastest using only links within the articles.
 When I learned about the graph data structure in the course [IDATA2302 - Algorithms and Data Structures](https://www.ntnu.edu/studies/courses/IDATA2302/2024#tab=omEmnet),
-I knew it could be applied to solve this problem.
+I knew it could be applied to find an optimal solution to this problem.
 
 Using a publically available download of the entirety of english Wikipedia, and the graph database management system [Neo4j](https://neo4j.com/), this problem has been solved.
 
