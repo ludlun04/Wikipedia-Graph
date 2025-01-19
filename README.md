@@ -8,6 +8,12 @@ I knew it could be applied to solve this problem.
 
 Using a publically available download of the entirety of english Wikipedia, and the graph database management system [Neo4j](https://neo4j.com/), this problem has been solved.
 
+> [!WARNING]  
+> This project deals with handling large files (roughly 100GB), make sure your computer has plenty of free space. This soltion was tested on a powerful computer with 32GB of RAM, I am not sure how it will act on a weaker machine.
+
+> [!NOTE]
+> Inserting data into the database takes a long time (roughly 22 hours).
+
 # Prerequisites
 - Neo4j must be running locally, the easiest way is using docker compose with the provided compose.yml file.
 - Wikipedia must be downloaded as an XML-file named enwiki.xml in the 'raw' directory of the project.
