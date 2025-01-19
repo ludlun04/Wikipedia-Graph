@@ -18,7 +18,7 @@ Using a publically available download of the entirety of english Wikipedia, and 
 - Neo4j must be running locally, the easiest way is using docker compose with the provided compose.yml file.
 - Wikipedia must be downloaded as an XML-file named enwiki.xml in the 'raw' directory of the project. Read about it [here](https://en.wikipedia.org/wiki/Wikipedia:Database_download).
 
-# Use
+# Usage
 - To extract relevant data from the XML-file, run 'parse_wikipedia.py'.
 - To insert this data into the database, run 'parsed_to_db.py'.
 - To view the database and run queries, visit http://localhost:7474/browser/preview/ to access the local Neo4j webserver.
