@@ -17,7 +17,7 @@ def create_constraints():
         driver.execute_query(Query(query))
 
 def insert_sample_data():
-    with open('queries/testing/wikipediaSampleNodes.cypher', 'r') as file:
+    with open('queries/testing/create/create_sample_articles.cypher', 'r') as file:
         query = file.read()
     with get_driver() as driver:
         driver.execute_query(query)
