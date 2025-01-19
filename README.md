@@ -16,7 +16,7 @@ Using a publically available download of the entirety of english Wikipedia, and 
 
 # Prerequisites
 - Neo4j must be running locally, the easiest way is using docker compose with the provided compose.yml file.
-- Wikipedia must be downloaded as an XML-file named enwiki.xml in the 'raw' directory of the project.
+- Wikipedia must be downloaded as an XML-file named enwiki.xml in the 'raw' directory of the project. Read about it [here](https://en.wikipedia.org/wiki/Wikipedia:Database_download).
 
 # Use
 - To extract relevant data from the XML-file, run 'parse_wikipedia.py'.
