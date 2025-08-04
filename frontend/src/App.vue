@@ -3,7 +3,7 @@ import GraphView from "../src/views/GraphView.vue"
 </script>
 
 <template>
-  <GraphView/>
+  <GraphView />
 </template>
 
 

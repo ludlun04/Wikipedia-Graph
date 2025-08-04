@@ -4,11 +4,11 @@ import type {GraphLink, GraphNode} from '@/types';
 import { ref } from 'vue'
 
 const nodes = ref<GraphNode[]>([
-        {name: 'A', id: 1},
-        {name: 'B', id: 2},
-        {name: 'C', id: 3},
-        {name: 'D', id: 4},
-        {name: 'E', id: 5}
+  {name: 'A', id: 1},
+  {name: 'B', id: 2},
+  {name: 'C', id: 3},
+  {name: 'D', id: 4},
+  {name: 'E', id: 5}
 ])
 
 const links = ref<GraphLink[]>([
@@ -20,7 +20,7 @@ const links = ref<GraphLink[]>([
 ])
 
 const updateLinks = () => {
-links.value[0] = {source: nodes.value[1], target: nodes.value[4]}
+  links.value[0] = {source: nodes.value[1], target: nodes.value[4]}
 }
 
 </script>
@@ -31,5 +31,7 @@ links.value[0] = {source: nodes.value[1], target: nodes.value[4]}
     :nodes="nodes"
     :links="links"
   />
-  <button @click="updateLinks">Change graph</button>
+  <button @click="updateLinks">
+    Change graph
+  </button>
 </template>
