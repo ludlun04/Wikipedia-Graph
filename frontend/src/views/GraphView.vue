@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import Graph from '@/components/Graph.vue';
-import type {GraphLink, GraphNode} from '@/types';
+import type {GraphEdge, GraphNode} from '@/types/types';
+import { Network } from "vue3-visjs"
 import { ref } from 'vue'
 
 const nodes = ref<GraphNode[]>([
@@ -11,27 +11,37 @@ const nodes = ref<GraphNode[]>([
   {name: 'E', id: 5}
 ])
 
-const links = ref<GraphLink[]>([
-  {source: nodes.value[1], target: nodes.value[2]},
-  {source: nodes.value[2], target: nodes.value[3]},
-  {source: nodes.value[3], target: nodes.value[1]},
-  {source: nodes.value[4], target: nodes.value[0]},
-  {source: nodes.value[0], target: nodes.value[1]},
+const edges = ref<GraphEdge[]>([
+  {from: 1, to: 2},
+  {from: 2, to: 3},
+  {from: 3, to: 1},
+  {from: 4, to: 0},
+  {from: 0, to: 1},
 ])
 
 const updateLinks = () => {
-  links.value[0] = {source: nodes.value[1], target: nodes.value[4]}
+  //links.value[0] = {source: nodes.value[1], target: nodes.value[4]}
+  //links.value[5] = {source: nodes.value[1], target: nodes.value[4]}
+  nodes.value.push({name: 'F', id: 6})
 }
 
 </script>
 
 <template>
   <h1>Graph</h1>
-  <Graph
+  <Network
+    class="network"
     :nodes="nodes"
-    :links="links"
+    :edges="edges"
   />
   <button @click="updateLinks">
     Change graph
   </button>
 </template>
+
+<style>
+.network {
+  width: 100vw;
+  height: 80vh;
+}
+</style>
